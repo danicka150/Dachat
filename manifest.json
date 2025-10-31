@@ -7,5 +7,11 @@
   "scope": "/https://dachat.onrender.com/",
   "short_name": "dachat.onrender",
   "start_url": "/",
-  "theme_color": "#ffffff"
+  "theme_color": "#ffffff",
+  "edge_side_panel": {
+    "preferred_width": -3
+  },
+  "categories": [
+    "social"
+  ]
 }
