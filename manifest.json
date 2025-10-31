@@ -1,0 +1,11 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "dachat.onrender",
+  "orientation": "any",
+  "scope": "/https://dachat.onrender.com/",
+  "short_name": "dachat.onrender",
+  "start_url": "/",
+  "theme_color": "#ffffff"
+}
