@@ -7,16 +7,14 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Статические файлы (index.html и всё остальное)
 app.use(express.static(__dirname));
 
-// Список подключённых пользователей
-const users = {};
+const users = {}; // список подключённых пользователей
 
 io.on('connection', (socket) => {
   console.log('Новый пользователь подключился');
 
-  // Вход с ником
+  // Логин только с ником
   socket.on('login', ({ nick }) => {
     if (!nick || nick.trim().length === 0) {
       socket.emit('login-result', { success: false, msg: 'Введите ник' });
@@ -25,14 +23,17 @@ io.on('connection', (socket) => {
     nick = nick.trim();
     socket.nick = nick;
     users[nick] = socket.id;
+
+    // Подтверждаем фронтенду
     socket.emit('login-result', { success: true, nick });
+
     io.emit('system', ${nick} вошёл в чат);
     console.log(Пользователь вошёл: ${nick});
   });
 
-  // Общие сообщения
+  // Общий чат
   socket.on('message', (msg) => {
-    if (!socket.nick) return; // Ник не введён
+    if (!socket.nick) return;
     io.emit('chat', { nick: socket.nick, msg });
   });
 
@@ -56,8 +57,5 @@ io.on('connection', (socket) => {
   });
 });
 
-// Render порт
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(Сервер запущен на порту ${PORT});
-});
+server.listen(PORT, () => console.log(Сервер запущен на порту ${PORT}));
