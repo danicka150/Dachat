@@ -7,55 +7,46 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'public')));
 
-const users = {}; // список подключённых пользователей
+const users = {}; // {socket.id: {nick, pass}}
 
 io.on('connection', (socket) => {
-  console.log('Новый пользователь подключился');
+  console.log('New user connected:', socket.id);
 
-  // Логин только с ником
-  socket.on('login', ({ nick }) => {
-    if (!nick || nick.trim().length === 0) {
-      socket.emit('login-result', { success: false, msg: 'Введите ник' });
-      return;
-    }
-    nick = nick.trim();
-    socket.nick = nick;
-    users[nick] = socket.id;
-
-    // Подтверждаем фронтенду
-    socket.emit('login-result', { success: true, nick });
-
-    io.emit('system', ${nick} вошёл в чат);
-    console.log(Пользователь вошёл: ${nick});
+  socket.on('login', ({ nick, pass }) => {
+    users[socket.id] = { nick, pass };
+    socket.broadcast.emit('system', `${nick} вошел в чат`);
   });
 
-  // Общий чат
   socket.on('message', (msg) => {
-    if (!socket.nick) return;
-    io.emit('chat', { nick: socket.nick, msg });
+    const user = users[socket.id];
+    if (!user) return;
+    io.emit('chat', { nick: user.nick, msg });
   });
 
-  // Приватные сообщения
   socket.on('private', ({ to, msg }) => {
-    if (!socket.nick) return;
-    const id = users[to];
-    if (id) {
-      io.to(id).emit('private', { from: socket.nick, msg });
-    } else {
-      socket.emit('system', Пользователь ${to} не в сети);
+    const fromUser = users[socket.id];
+    if (!fromUser) return;
+    const targetSocketId = Object.keys(users).find(
+      (id) => users[id].nick === to
+    );
+    if (targetSocketId) {
+      io.to(targetSocketId).emit('private', {
+        from: fromUser.nick,
+        msg,
+      });
     }
   });
 
-  // Отключение
   socket.on('disconnect', () => {
-    if (socket.nick) {
-      io.emit('system', ${socket.nick} покинул чат);
-      delete users[socket.nick];
+    const user = users[socket.id];
+    if (user) {
+      io.emit('system', `${user.nick} покинул чат`);
+      delete users[socket.id];
     }
   });
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(Сервер запущен на порту ${PORT}));
+server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

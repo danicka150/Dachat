@@ -3,187 +3,195 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat App</title>
+<title>Dachat</title>
 <style>
-:root {
-  --dark-bg:#000; --dark-text:#0f0;
-  --light-bg:#fff; --light-text:#00f;
+body {
+  margin:0;
+  font-family:monospace;
+  background:#0a0a0a;
+  color:#00ff66;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
 }
-body{margin:0;font-family:Arial,sans-serif;transition:background 0.3s,color 0.3s;}
-body.dark{background:var(--dark-bg);color:var(--dark-text);}
-body.light{background:var(--light-bg);color:var(--light-text);}
-header{display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #555;}
-#theme-toggle{cursor:pointer;padding:5px;transition:0.3s;}
-#theme-toggle:hover{transform:scale(1.1);}
-#notification{position:relative;cursor:pointer;margin-right:10px;}
-#notification img{width:24px;transition:transform 0.2s;}
-#notification img:hover{transform:scale(1.2);}
-#notification span{position:absolute;top:-5px;right:-5px;background:red;color:#fff;font-size:12px;border-radius:50%;padding:2px 5px;}
-#chat{display:flex;flex-direction:column;height:calc(100vh - 50px);}
-#messages{flex:1;overflow-y:auto;padding:10px;}
-.message{margin:5px 0;padding:5px 10px;border-radius:5px;animation:slideFade 0.3s ease;}
-.user-nick{font-weight:bold;cursor:pointer;transition:color 0.3s;}
-.user-nick:hover{opacity:0.7;}
-#input-area{display:flex;border-top:1px solid #555;}
-#input-area input{flex:1;padding:10px;border:none;outline:none;font-size:16px;}
-#input-area button{padding:10px 15px;border:none;cursor:pointer;background:#0f0;color:#000;font-weight:bold;transition:background 0.3s,transform 0.2s;}
-#input-area button:hover{background:#0c0;transform:scale(1.05);}
-@keyframes slideFade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-#private-chat{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:inherit;color:inherit;flex-direction:column;z-index:100;animation:fadeInScale 0.3s ease;}
-#private-chat.show{display:flex;}
-@keyframes fadeInScale{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
-#private-chat .header{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #555;}
-#private-chat #private-messages{flex:1;overflow-y:auto;padding:10px;}
-#private-chat #private-input-area{display:flex;border-top:1px solid #555;}
-#private-chat #private-input-area input{flex:1;padding:10px;border:none;outline:none;font-size:16px;}
-#private-chat #private-input-area button{padding:10px 15px;border:none;cursor:pointer;background:#0f0;color:#000;font-weight:bold;transition:background 0.3s,transform 0.2s;}
-#private-chat #private-input-area button:hover{background:#0c0;transform:scale(1.05);}
-@media(max-width:600px){
-  #input-area input, #private-input-area input{font-size:14px;}
-  #input-area button, #private-chat #private-input-area button{padding:8px 12px;font-size:14px;}
-}
+body.light {background:#f0f8ff;color:#003366;}
 
-/* Модальное окно только для ника */
-#login-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:200;}
-#login-box{background:#222;color:#0f0;padding:20px;border-radius:10px;min-width:250px;text-align:center;}
-#login-box input{width:100%;padding:8px;margin:5px 0;font-size:14px;}
-#login-box button{width:100%;padding:8px;margin:5px 0;background:#0f0;color:#000;font-weight:bold;border:none;cursor:pointer;transition:0.3s;}
-#login-box button:hover{background:#0c0;}
+#login {margin:auto;text-align:center;}
+input {background:#111;border:1px solid #00ff66;color:#00ff66;margin:5px;padding:10px;border-radius:5px;width:90%;max-width:300px;font-size:16px;}
+button {background:#00ff66;color:#000;border:none;padding:10px 20px;cursor:pointer;border-radius:5px;font-size:16px;}
+
+#chat,#privateChat{display:none;flex-direction:column;flex:1;overflow:hidden;}
+#messages,#privateMessages{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;}
+.msg{margin-bottom:8px;word-wrap:break-word;opacity:0;transform:translateY(20px);animation:slideIn 0.3s forwards;}
+.msg.self{align-self:flex-end;color:#000;background:#00ff66;padding:8px 12px;border-radius:12px;}
+.msg.other{align-self:flex-start;color:#00ff66;background:#111;padding:8px 12px;border-radius:12px;}
+.msg .nick{font-weight:bold;cursor:pointer;text-decoration:underline;}
+@keyframes slideIn{to{opacity:1;transform:translateY(0);}}
+
+form{display:flex;padding:8px;border-top:1px solid #00ff66;background:#111;}
+#msgChat,#msgPrivate{flex:1;padding:10px;border-radius:8px;border:1px solid #00ff66;background:#111;color:#00ff66;font-size:16px;}
+form button{margin-left:8px;padding:10px 16px;font-size:16px;border-radius:8px;}
+
+#privateHeader{display:flex;justify-content:space-between;align-items:center;padding:10px;background:#111;border-bottom:1px solid #00ff66;font-weight:bold;}
+#privateHeader button{background:none;border:none;color:#ff4444;font-size:18px;cursor:pointer;}
+
+#themeToggle, #notifBell {
+  position:fixed;top:10px;padding:8px 10px;border:none;border-radius:5px;font-size:18px;cursor:pointer;z-index:10;
+}
+#themeToggle {right:10px;background:#00ff66;color:#000;}
+#notifBell {right:60px;background:#111;color:#00ff66;}
+#notifCount {position:absolute;top:-5px;right:-5px;background:#ff4444;color:#fff;font-size:12px;font-weight:bold;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+
+@media(max-width:600px){
+  #themeToggle, #notifBell {
+    top:50px;  /* выше кнопки отправить */
+    right:10px;
+  }
+  #notifBell { right:60px; }
+}
 </style>
 </head>
-<body class="dark">
+<body>
 
-<!-- Модальное окно только с ником -->
-<div id="login-modal">
-  <div id="login-box">
-    <h3>Введите ник</h3>
-    <input id="nick-input" placeholder="Ваш ник">
-    <button id="login-btn">Войти</button>
-    <div id="login-msg" style="color:red;font-size:12px;"></div>
-  </div>
+<button id="themeToggle">🌗</button>
+<button id="notifBell">🔔
+  <div id="notifCount" style="display:none">0</div>
+</button>
+
+<div id="login">
+<h2>Вход в чат</h2>
+<input id="nick" placeholder="Ник"><br>
+<input id="pass" type="password" placeholder="Пароль"><br>
+<button onclick="login()">Войти</button>
 </div>
 
-<header>
-  <div>Общий чат</div>
-  <div style="display:flex;align-items:center;">
-    <span id="notification"><img src="https://cdn-icons-png.flaticon.com/512/1827/1827343.png"><span id="notif-count">0</span></span>
-    <button id="theme-toggle">🌗</button>
-  </div>
-</header>
 <div id="chat">
-  <div id="messages"></div>
-  <div id="input-area">
-    <input id="msg-input" placeholder="Написать сообщение...">
-    <button id="send-btn">Отправить</button>
-  </div>
+<div id="messages"></div>
+<form onsubmit="sendChat(event)">
+<input id="msgChat" autocomplete="off" placeholder="Сообщение...">
+<button>Отправить</button>
+</form>
 </div>
 
-<div id="private-chat">
-  <div class="header">
-    <div id="private-nick"></div>
-    <button id="close-private">✖</button>
-  </div>
-  <div id="private-messages"></div>
-  <div id="private-input-area">
-    <input id="private-input" placeholder="Написать сообщение...">
-    <button id="private-send">Отправить</button>
-  </div>
+<div id="privateChat">
+<div id="privateHeader">
+<span id="privateWith"></span>
+<button onclick="closePrivate()">❌</button>
+</div>
+<div id="privateMessages"></div>
+<form onsubmit="sendPrivate(event)">
+<input id="msgPrivate" autocomplete="off" placeholder="Сообщение...">
+<button>Отправить</button>
+</form>
 </div>
 
-<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
 const socket = io();
+let nick = null;
+let privateTo = null;
+let unread = 0;
+const userColors = {};
 
-let nick = "";
-
-// Случайные цвета для ников
-const colors=['#e6194b','#3cb44b','#ffe119','#4363d8','#f58231','#911eb4','#46f0f0','#f032e6'];
-function getColor(n){let hash=0;for(let i=0;i<n.length;i++){hash=n.charCodeAt(i)+((hash<<5)-hash);}return colors[Math.abs(hash)%colors.length];}
-
-// DOM элементы
-const messages=document.getElementById('messages');
-const input=document.getElementById('msg-input');
-const sendBtn=document.getElementById('send-btn');
-const notifCount=document.getElementById('notif-count');
-let unread=0;
-
-// Приватный чат
-const privateChat=document.getElementById('private-chat');
-const privateNick=document.getElementById('private-nick');
-const privateMessages=document.getElementById('private-messages');
-const privateInput=document.getElementById('private-input');
-const privateSend=document.getElementById('private-send');
-const closePrivate=document.getElementById('close-private');
-
-// Модальное окно для ника
-const loginModal=document.getElementById('login-modal');
-const nickInput=document.getElementById('nick-input');
-const loginBtn=document.getElementById('login-btn');
-const loginMsg=document.getElementById('login-msg');
-
-loginBtn.onclick=()=>{
-  const n = nickInput.value.trim();
-  if(n.length<1){ loginMsg.textContent="Введите ник"; return; }
-  nick = n;
-  socket.emit('login',{nick});
-  loginModal.style.display='none';
+const notifCount = document.getElementById('notifCount');
+const bell = document.getElementById('notifBell');
+function increaseNotif(){unread++;notifCount.style.display='flex';notifCount.textContent=unread;}
+function resetNotif(){unread=0;notifCount.style.display='none';}
+bell.onclick=()=>{
+  privateTo=null;
+  document.getElementById('privateChat').style.display='none';
+  document.getElementById('chat').style.display='flex';
+  resetNotif();
+};
+// Цвет пользователей
+function getUserColor(name){
+  if(name===nick) return '#00ff66';
+  if(!userColors[name]){
+    const letters='0123456789ABCDEF'; let color='#';
+    for(let i=0;i<6;i++) color+=letters[Math.floor(Math.random()*16)];
+    userColors[name]=color;
+  }
+  return userColors[name];
 }
 
-// Отправка сообщений
-sendBtn.onclick=()=>{if(input.value.trim()!==''){socket.emit('message',input.value);input.value='';}}
-
-// Получение сообщений
-socket.on('chat',({nick:n,msg})=>{
+// Добавление сообщений
+function addMessage(text,cls,user,container){
   const div=document.createElement('div');
-  div.className='message';
-  div.innerHTML=<span class="user-nick" style="color:${getColor(n)}">${n}</span>: ${msg};
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-  if(document.hidden){unread++; notifCount.textContent=unread;}
-});
-
-// Уведомления
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){unread=0; notifCount.textContent=0;}});
-
-// Темная/светлая тема
-document.getElementById('theme-toggle').onclick=()=>{document.body.classList.toggle('dark');document.body.classList.toggle('light');}
-
-// Приватный чат
-messages.addEventListener('click',e=>{
-  if(e.target.classList.contains('user-nick')){
-    privateNick.textContent=e.target.textContent;
-    privateChat.classList.add('show');
-    privateMessages.innerHTML='';
-  }
-});
-closePrivate.onclick=()=>{privateChat.classList.remove('show');}
-
-// Отправка приватных сообщений
-privateSend.onclick=()=>{
-  if(privateInput.value.trim()!==''){
-    socket.emit('private',{to:privateNick.textContent,msg:privateInput.value});
-    const div=document.createElement('div');
-    div.className='message';
-    div.innerHTML=<span class="user-nick" style="color:${getColor(nick)}">Я</span>: ${privateInput.value};
-    privateMessages.appendChild(div);
-    privateMessages.scrollTop = privateMessages.scrollHeight;
-    privateInput.value='';
-  }
+  div.className='msg '+cls;
+  div.innerHTML=text;
+  container.appendChild(div);
+  container.scrollTop=container.scrollHeight;
 }
 
-// Получение приватных сообщений
+// Логин
+function login(){
+  nick = document.getElementById('nick').value.trim();
+  const pass = document.getElementById('pass').value.trim();
+  if(!nick) return alert('Введите ник');
+  socket.emit('login',{nick,nick,pass});
+  document.getElementById('login').style.display='none';
+  document.getElementById('chat').style.display='flex';
+}
+
+// Отправка сообщений общего чата
+function sendChat(e){
+  e.preventDefault();
+  const msgInput=document.getElementById('msgChat');
+  const msg=msgInput.value.trim();
+  if(!msg) return;
+  socket.emit('message',msg);
+  addMessage('<span class="nick">'+nick+'</span>: '+msg,'self',nick,document.getElementById('messages'));
+  msgInput.value='';
+}
+
+// Отправка ЛС
+function sendPrivate(e){
+  e.preventDefault();
+  if(!privateTo) return;
+  const msgInput=document.getElementById('msgPrivate');
+  const msg=msgInput.value.trim();
+  if(!msg) return;
+  socket.emit('private',{to:privateTo,msg});
+  addMessage('Вы: '+msg,'self',null,document.getElementById('privateMessages'));
+  msgInput.value='';
+}
+
+// ЛС
+function openPrivate(name){
+  privateTo=name;
+  document.getElementById('privateWith').textContent=name;
+  document.getElementById('privateMessages').innerHTML='';
+  document.getElementById('chat').style.display='none';
+  document.getElementById('privateChat').style.display='flex';
+  resetNotif();
+}
+function closePrivate(){
+  privateTo=null;
+  document.getElementById('privateChat').style.display='none';
+  document.getElementById('chat').style.display='flex';
+  resetNotif();
+}
+
+// Тема
+document.getElementById('themeToggle').onclick=()=>{document.body.classList.toggle('light');};
+
+// Socket.IO события
+socket.on('chat',({nick:userNick,msg})=>{
+  const container=document.getElementById('messages');
+  const cls=userNick===nick?'self':'other';
+  addMessage('<span class="nick" onclick="openPrivate(\''+userNick+'\')">'+userNick+'</span>: '+msg,cls,userNick,container);
+  if(!privateTo && userNick!==nick) increaseNotif();
+});
 socket.on('private',({from,msg})=>{
-  if(privateChat.classList.contains('show') && privateNick.textContent===from){
-    const div=document.createElement('div');
-    div.className='message';
-    div.innerHTML=<span class="user-nick" style="color:${getColor(from)}">${from}</span>: ${msg};
-privateMessages.appendChild(div);
-    privateMessages.scrollTop = privateMessages.scrollHeight;
+  if(privateTo===from){
+    addMessage(from+': '+msg,'other',from,document.getElementById('privateMessages'));
   }else{
-    unread++; notifCount.textContent=unread;
-    const audio=new Audio("https://www.myinstants.com/media/sounds/bell.mp3");
-    audio.play().catch(()=>{});
+    addMessage('🔒 ЛС от <span class="nick" onclick="openPrivate(\''+from+'\')">'+from+'</span>: '+msg,'other',from,document.getElementById('messages'));
+    increaseNotif();
   }
+});
+socket.on('system',text=>{
+  addMessage('⚙️ '+text,'other',null,document.getElementById('messages'));
 });
 </script>
 </body>
